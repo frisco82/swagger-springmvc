@@ -14,6 +14,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -125,7 +126,15 @@ public class ResolvedTypes {
                 new Predicate<ResolvedMethod>() {
                     @Override
                     public boolean apply(ResolvedMethod input) {
-                        return input.getRawMember().equals(methodToResolve);
+                        Method check = input.getRawMember();
+                        if (check.equals(methodToResolve)) {
+                            return true;
+                        }
+                        if (check.getName().equals(methodToResolve.getName()) &&
+                            check.getDeclaringClass().isAssignableFrom(methodToResolve.getDeclaringClass())) {
+                            return Arrays.equals(check.getParameterTypes(), methodToResolve.getParameterTypes());
+                        }
+                        return false;
                     }
                 });
         return resolveToMethodWithMaxResolvedTypes(filtered);
